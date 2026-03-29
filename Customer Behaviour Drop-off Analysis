@@ -1,0 +1,14 @@
+sql-- Customer Journey Drop-off Analysis
+-- Identifies where customers are dropping off in the funnel
+
+SELECT 
+    funnel_stage,
+    COUNT(customer_id) AS customers_at_stage,
+    LAG(COUNT(customer_id)) OVER (ORDER BY stage_order) AS prev_stage_count,
+    ROUND(
+        (LAG(COUNT(customer_id)) OVER (ORDER BY stage_order) - COUNT(customer_id)) 
+        * 100.0 / NULLIF(LAG(COUNT(customer_id)) OVER (ORDER BY stage_order), 0), 2
+    ) AS drop_off_pct
+FROM customer_journey
+GROUP BY funnel_stage, stage_order
+ORDER BY stage_order;
