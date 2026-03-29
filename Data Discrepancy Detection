@@ -1,0 +1,17 @@
+sql-- Data Discrepancy Detection
+-- Flags accounts where GA and CRM conversion data don't match
+
+SELECT 
+    account_id,
+    account_name,
+    ga_conversions,
+    crm_conversions,
+    ABS(ga_conversions - crm_conversions) AS discrepancy,
+    ROUND(
+        ABS(ga_conversions - crm_conversions) * 100.0 
+        / NULLIF(ga_conversions, 0), 2
+    ) AS discrepancy_pct
+FROM account_data
+WHERE ABS(ga_conversions - crm_conversions) * 100.0 
+      / NULLIF(ga_conversions, 0) > 5
+ORDER BY discrepancy_pct DESC;
